@@ -5,7 +5,7 @@
 #define printf(a, b) Serial.println(b)
 #endif
 
-#if defined ARDUINO_SAM_DUE || defined ADAFRUIT_GRAND_CENTRAL_M4
+#if (defined ARDUINO_SAM_DUE || defined ADAFRUIT_GRAND_CENTRAL_M4)
 #define HostOS 0x01
 #endif
 #if defined CORE_TEENSY
@@ -61,8 +61,8 @@ bool _sys_exists(uint8* filename) {
 	return(SD.exists((const char *)filename));
 }
 
-File _sys_fopen_w(uint8* filename) {
-	return(SD.open((char*)filename, O_CREAT | O_WRITE));
+File _sys_fopen_w(const char* filename) {
+	return(SD.open((const char*)filename, FILE_WRITE_BEGIN));
 }
 
 int _sys_fputc(uint8 ch, File& f) {
@@ -109,9 +109,13 @@ int _sys_openfile(uint8* filename) {
 	int result = 0;
 
 	digitalWrite(LED, HIGH ^ LEDinv);
-	f = SD.open((char*)filename, O_READ);
+	f = SD.open((char*)filename, FILE_READ);
 	if (f) {
+#if (defined(board_teensy35) || defined(board_teensy36) || defined(board_teensy40) || defined(board_teensy41))
+        strcpy((char*)fileDirEntry.name,f.name());
+#else
 		f.dirEntry(&fileDirEntry);
+#endif
 		f.close();
 		result = 1;
 	}
@@ -124,7 +128,7 @@ int _sys_makefile(uint8* filename) {
 	int result = 0;
 
 	digitalWrite(LED, HIGH ^ LEDinv);
-	f = SD.open((char*)filename, O_CREAT | O_WRITE);
+	f = SD.open((char*)filename, FILE_WRITE_BEGIN);
 	if (f) {
 		f.close();
 		result = 1;
@@ -144,13 +148,19 @@ int _sys_renamefile(uint8* filename, uint8* newname) {
 	int result = 0;
 
 	digitalWrite(LED, HIGH ^ LEDinv);
+#if (defined(board_teensy35) || defined(board_teensy36) || defined(board_teensy40) || defined(board_teensy41))
+    if (SD.rename((char *)filename, (char*)newname)) {
+			result = 1;
+		}
+#else
 	f = SD.open((char*)filename, O_WRITE | O_APPEND);
 	if (f) {
-    if (f.rename((char*)newname)) {
+        if (f.rename((char*)newname)) {
 			f.close();
 			result = 1;
 		}
 	}
+#endif
 	digitalWrite(LED, LOW ^ LEDinv);
 	return(result);
 }
@@ -331,10 +341,18 @@ uint8 _findnext(uint8 isdir) {
 		result = 0;
 	} else {
 		while (f = userdir.openNextFile()) {
+#if (defined(board_teensy35) || defined(board_teensy36) || defined(board_teensy40) || defined(board_teensy41))
+			strcpy((char *)findNextDirName,f.name()); 
+#else
 			f.getName((char*)&findNextDirName[0], 13);
+#endif
 			isfile = !f.isDirectory();
 			bytes = f.size();
+#if defined(board_teensy35) || defined(board_teensy36) || defined(board_teensy40) || defined(board_teensy41)
+            strcpy((char *)fileDirEntry.name,f.name());
+#else
 			f.dirEntry(&fileDirEntry);
+#endif
 			f.close();
 			if (!isfile)
 				continue;
@@ -394,7 +412,11 @@ uint8 _findnextallusers(uint8 isdir) {
 				done = true;
 				break;
 			}
+#if (defined(board_teensy35) || defined(board_teensy36) || defined(board_teensy40) || defined(board_teensy41))
+            strcpy(dirname, userdir.name());
+#else
 			userdir.getName(dirname, sizeof dirname);
+#endif
 			if (userdir.isDirectory() && strlen(dirname) == 1 && isxdigit(dirname[0])) {
 				currFindUser = dirname[0] <= '9' ? dirname[0] - '0' : toupper(dirname[0]) - 'A' + 10;
 				break;
