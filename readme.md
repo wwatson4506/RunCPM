@@ -265,6 +265,8 @@ to<br>
 ```#define SDFAT_FILE_TYPE 1```<br>
 As file type 1 is required for most of the RunCPM ports.
 
+## UPDATE: As of Teensyduino 157 and up the above changes are invalid. This libray has been updated to work with the changes to Teeensyduino.
+
 To find your libraries folder, open the Preferences in Arduino IDE and look at the Sketchbook location field. 
 
 On Windows systems, SdFatConfig.h will be in Documents\Arduino\libraries\SdFat\src
