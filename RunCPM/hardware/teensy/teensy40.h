@@ -6,9 +6,7 @@
 #define LEDinv 0
 #define board_analog_io
 #define board_digital_io
-SdFat SD;
-typedef File32 File;
-#define SDINIT SdSpiConfig(SS, DEDICATED_SPI, SD_SCK_MHZ(SDMHZ))
+#define SDINIT BUILTIN_SDCARD
 #define BOARD "Teensy 4.0"
 #define board_teensy40
 
