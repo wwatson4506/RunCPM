@@ -731,7 +731,7 @@ void _Bdos(void) {
 		case A_WRITE: {
 #ifdef USE_PUN
 			if (!pun_open) {
-				pun_dev = _sys_fopen_w((uint8 *)pun_file);
+				pun_dev = _sys_fopen_w((const char*)pun_file);
 				pun_open = TRUE;
 			}
 			if (pun_dev) {
@@ -747,7 +747,7 @@ void _Bdos(void) {
 		case L_WRITE: {
 #ifdef USE_LST
 			if (!lst_open) {
-				lst_dev = _sys_fopen_w((uint8 *)lst_file);
+				lst_dev = _sys_fopen_w((const char*)lst_file);
 				lst_open = TRUE;
 			}
 			if (lst_dev)
